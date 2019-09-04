@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.action.modules.bas.dao.FactoryDao">
+	<sql id="factoryColumns">
+	    	a.id,
+			a.factoryName,
+			a.factoryBuildDate,
+			a.factoryAddress,
+			a.factoryPhone,
+			a.factoryECode,
+			a.factoryBuildM,
+			a.enterprise_id as "enterprise.id",
+			c.enterName as "enterprise.enterName",
+			a.create_by as "createBy.id",
+			a.create_date,
+			a.update_by as "updateBy.id",
+			a.update_date,
+			a.remarks,
+			a.del_flag
+	</sql>
+	<sql id="factoryJoins">
+	    left join bas_enterprise c on c.id=a.enterprise_id
+	</sql>
+    <select id="get" resultType="Factory">
+        select 
+        	<include refid="factoryColumns"></include>
+         from bas_factory a
+         	<include refid="factoryJoins"></include>
+         
+        where a.id=#{id}
+    </select>
+    
+    <select id="findList" resultType="Factory">
+		SELECT 
+			<include refid="factoryColumns"/>
+		FROM bas_factory a
+		<include refid="factoryJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+		<if test="factoryName != null and factoryName != ''">
+			AND a.factoryName like concat('%',#{factoryName},'%')
+		</if>
+		ORDER BY a.update_date DESC
+	</select>
+	
+	<select id="findAllList" resultType="Factory">
+		SELECT 
+			<include refid="factoryColumns"/>
+		FROM bas_factory a
+		<include refid="factoryJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+		ORDER BY a.update_date DESC
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO bas_factory(
+			id, 
+			factoryName, 
+			factoryBuildDate,
+			factoryAddress, 
+			factoryPhone, 
+			factoryECode,
+			factoryBuildM, 
+			enterprise_id,
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag
+		) VALUES ( 
+			#{id},
+			#{factoryName}, 
+			#{factoryBuildDate}, 
+			#{factoryAddress}, 
+			#{factoryPhone}, 
+			#{factoryECode}, 
+			#{factoryBuildM},
+			#{enterprise.id},
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE bas_factory SET 
+			factoryName = #{factoryName}, 
+			factoryBuildDate = #{factoryBuildDate}, 
+			factoryAddress = #{factoryAddress}, 
+			factoryPhone = #{factoryPhone},
+			factoryECode=#{factoryECode},
+			factoryBuildM=#{factoryBuildM},
+			enterprise_id = #{enterprise.id},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE bas_factory SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+</mapper>

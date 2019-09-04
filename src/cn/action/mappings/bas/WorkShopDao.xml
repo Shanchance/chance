@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.action.modules.bas.dao.WorkShopDao">
+    
+    <sql id="workShopColumns">
+    	a.id,
+    	a.factory_id AS "factory.id",
+    	c.factoryName as "factory.factoryName",
+		a.shopName, 
+		a.shopNo, 
+		a.master, 
+		a.description,  
+		a.create_by AS "createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.del_flag
+    </sql>
+    
+    
+    <sql id="workShopJoins">
+		LEFT JOIN bas_factory c ON c.id = a.factory_id
+    </sql>
+    
+	<select id="get" resultType="WorkShop">
+		SELECT 
+			<include refid="workShopColumns"/>
+		FROM bas_workshop a
+			<include refid="workShopJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WorkShop">
+		SELECT 
+			<include refid="workShopColumns"/>
+		FROM bas_workshop a
+			<include refid="workShopJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+		<if test="shopName != null and shopName != ''">
+			AND a.shopName like concat('%',#{shopName},'%') 
+		</if>
+		ORDER BY a.update_date DESC
+	</select>
+	
+	<select id="findAllList" resultType="WorkShop">
+		SELECT 
+			<include refid="workShopColumns"/>
+		FROM bas_workshop a
+			<include refid="workShopJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+		ORDER BY shopName,shopNo,master,description DESC
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO bas_workshop(
+			id, 
+			shopName, 
+			shopNo, 
+			master, 
+			description,
+			factory_id,  
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag
+		) VALUES ( 
+			#{id},
+			#{shopName}, 
+			#{shopNo}, 
+			#{master}, 
+			#{description}, 
+			#{factory.id},
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE bas_workshop SET 
+			shopName = #{shopName}, 
+			shopNo = #{shopNo}, 
+			master = #{master}, 
+			description = #{description}, 
+			factory_id = #{factory.id},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE bas_workshop SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>
